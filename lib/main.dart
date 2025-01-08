@@ -1,42 +1,51 @@
+// main.dart
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'settings.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // Application name
-      title: 'Flutter Hello World',
-      // Application theme data, you can set the colors for the application as
-      // you want
-      theme: ThemeData(
-        // useMaterial3: false,
-        primarySwatch: Colors.blue,
-      ),
-      // A widget which will be started on application startup
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: HomePage(),
     );
   }
 }
 
-class MyHomePage extends StatelessWidget {
-  final String title;
-  const MyHomePage({super.key, required this.title});  
+class HomePage extends StatelessWidget {
+  String _temp_limit = '';
+  String _hum_limit = '';
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    print(prefs.get('warningTemp'));
+    _temp_limit = prefs.getInt('warningTemp')?.toString() ?? '';
+    _hum_limit = prefs.getInt('warningHumidity')?.toString() ?? '';
+  }
 
   @override
   Widget build(BuildContext context) {
+    _loadSettings();
     return Scaffold(
       appBar: AppBar(
-        // The title text which will be shown on the action bar
-        title: Text(title),
+        title: Text('Home Page'),
       ),
       body: Center(
-        child: Text(
-          'Hello, World!',
+        child: Column(
+          children: [Text(_temp_limit), Text(_hum_limit)],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => SettingsPage()),
+          );
+        },
+        child: Icon(Icons.settings),
       ),
     );
   }
